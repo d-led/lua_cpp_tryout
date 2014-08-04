@@ -28,5 +28,10 @@ void luabridge_bind(lua_State* L) {
 int main() {
 	lua::State state;
     luabridge_bind(state.getState());
-    state.doString("Test()");
+    try {
+    	state.doString("Test()");
+    	state.doString("blabla()");
+    } catch (std::exception& e) {
+    	std::cerr<<e.what()<<std::endl;
+    }
 }
