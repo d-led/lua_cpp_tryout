@@ -4,7 +4,31 @@ assert( require 'premake.quickstart' )
 
 make_solution 'lua_cpp_tryout'
 
-make_console_app('lua_cpp_tryout', { 'lua_cpp_tryout.cpp' })
+includedirs { 
+	'./LuaBridge-1.0.2',
+	'./luabind'
+}
+
+local OS = os.get()
+local settings = {
+	includedirs = {
+		linux = {'/usr/include/lua5.1'},
+		windows = {},
+		macosx = {}
+	},
+	links = {
+		linux = { 'lua5.1' },
+		windows = { 'lua5.1' },
+		macosx = { 'lua' }
+	}
+}
+
+includedirs { settings.includedirs[OS] }
+
+make_static_lib('luabind',{'./luabind/src/*.cpp'})
+
+make_console_app('try_luabridge', { 'try_luabridge.cpp' })
+
+links { settings.links[OS] }
 
 make_cpp11()
-

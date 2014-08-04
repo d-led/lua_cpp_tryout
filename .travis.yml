@@ -1,0 +1,8 @@
+language: cpp
+
+before_install:
+  - sudo apt-get install lua5.1 liblua5.1-dev
+
+script:
+  - make -C Build config=release
+  - lua -l sophia lua-sophia/test.lua
