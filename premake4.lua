@@ -6,7 +6,7 @@ make_solution 'lua_cpp_tryout'
 
 includedirs { 
 	'./LuaBridge-1.0.2',
-	'./luabind'
+	'./LuaState/include'
 }
 
 local OS = os.get()
@@ -25,10 +25,10 @@ local settings = {
 
 includedirs { settings.includedirs[OS] }
 
-make_static_lib('luabind',{'./luabind/src/*.cpp'})
-
 make_console_app('try_luabridge', { 'try_luabridge.cpp' })
 
 links { settings.links[OS] }
 
 make_cpp11()
+
+run_target_after_build()

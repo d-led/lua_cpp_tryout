@@ -20,11 +20,11 @@ ifndef RESCOMP
 endif
 
 ifeq ($(config),debug)
-  OBJDIR     = Debug/obj/Debug/try_luabridge
+  OBJDIR     = Debug/obj
   TARGETDIR  = ../linux/bin/Debug
   TARGET     = $(TARGETDIR)/try_luabridge
   DEFINES   += -DDEBUG -D_DEBUG
-  INCLUDES  += -I.. -I../LuaBridge-1.0.2 -I../luabind -I/usr/include/lua5.1
+  INCLUDES  += -I.. -I../LuaBridge-1.0.2 -I../LuaState/include -I/usr/include/lua5.1
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -g -v -fPIC -std=c++0x
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
@@ -38,15 +38,17 @@ ifeq ($(config),debug)
   define PRELINKCMDS
   endef
   define POSTBUILDCMDS
+	@echo Running post-build commands
+	$(TARGET)
   endef
 endif
 
 ifeq ($(config),release)
-  OBJDIR     = Release/obj/Release/try_luabridge
+  OBJDIR     = Release/obj
   TARGETDIR  = ../linux/bin/Release
   TARGET     = $(TARGETDIR)/try_luabridge
   DEFINES   += -DRELEASE
-  INCLUDES  += -I.. -I../LuaBridge-1.0.2 -I../luabind -I/usr/include/lua5.1
+  INCLUDES  += -I.. -I../LuaBridge-1.0.2 -I../LuaState/include -I/usr/include/lua5.1
   ALL_CPPFLAGS  += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS    += $(CFLAGS) $(ALL_CPPFLAGS) $(ARCH) -O2 -v -fPIC -std=c++0x
   ALL_CXXFLAGS  += $(CXXFLAGS) $(ALL_CFLAGS)
@@ -60,6 +62,8 @@ ifeq ($(config),release)
   define PRELINKCMDS
   endef
   define POSTBUILDCMDS
+	@echo Running post-build commands
+	$(TARGET)
   endef
 endif
 

@@ -6,22 +6,17 @@ ifndef config
 endif
 export config
 
-PROJECTS := luabind try_luabridge
+PROJECTS := try_luabridge
 
 .PHONY: all clean help $(PROJECTS)
 
 all: $(PROJECTS)
-
-luabind: 
-	@echo "==== Building luabind ($(config)) ===="
-	@${MAKE} --no-print-directory -C . -f luabind.make
 
 try_luabridge: 
 	@echo "==== Building try_luabridge ($(config)) ===="
 	@${MAKE} --no-print-directory -C . -f try_luabridge.make
 
 clean:
-	@${MAKE} --no-print-directory -C . -f luabind.make clean
 	@${MAKE} --no-print-directory -C . -f try_luabridge.make clean
 
 help:
@@ -34,7 +29,6 @@ help:
 	@echo "TARGETS:"
 	@echo "   all (default)"
 	@echo "   clean"
-	@echo "   luabind"
 	@echo "   try_luabridge"
 	@echo ""
 	@echo "For more information, see http://industriousone.com/premake/quick-start"
