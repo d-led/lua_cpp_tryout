@@ -26,7 +26,7 @@ void luabridge_bind(lua_State* L) {
 }
 
 int main() {
-	lua::State state;
+    lua::State state;
     luabridge_bind(state.getState());
     try {
     	state.doString("Test()");
