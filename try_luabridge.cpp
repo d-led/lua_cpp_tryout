@@ -10,7 +10,7 @@ void luabridge_bind(lua_State *L) {
     int x;
 
   public:
-    Player() : x(0), y(0) { std::cout << __FUNCTION__ << std::endl; }
+    Player() : x(0) { std::cout << __FUNCTION__ << std::endl; }
 
     ~Player() { std::cout << __FUNCTION__ << std::endl; }
 
