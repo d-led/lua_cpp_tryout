@@ -14,7 +14,7 @@ void luabridge_bind(lua_State *L) {
 
     ~Player() { std::cout << __FUNCTION__ << std::endl; }
 
-    void get_x() const {
+    int get_x() const {
       std::cout << __FUNCTION__ << std::endl;
       return x;
     }
