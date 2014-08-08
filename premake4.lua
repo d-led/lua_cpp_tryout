@@ -13,8 +13,13 @@ local OS = os.get()
 local settings = {
 	includedirs = {
 		linux = {'/usr/include/lua5.1'},
-		windows = {},
+		windows = { [[C:\\luarocks\\2.1\\include]] },
 		macosx = {}
+	},
+	libdirs = {
+		linux = {},
+		windows = { [[C:\\luarocks\\2.1]] },
+		macosx = {}	
 	},
 	links = {
 		linux = { 'lua5.1' },
@@ -24,6 +29,7 @@ local settings = {
 }
 
 includedirs { settings.includedirs[OS] }
+libdirs { settings.libdirs[OS] }
 
 make_console_app('try_luabridge', { 'try_luabridge.cpp' })
 
