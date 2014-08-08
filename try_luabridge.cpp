@@ -20,7 +20,7 @@ void luabridge_bind(lua_State *L) {
     }
 
     void set_x(int x_) {
-      std::cout << __FUNCTION__ << std::endl;
+      std::cout << __FUNCTION__ << " " << x_ << std::endl;
       x = x_;
     }
 
@@ -29,9 +29,10 @@ void luabridge_bind(lua_State *L) {
 
   luabridge::getGlobalNamespace(L)
       .beginClass<Player>("Player")
-      .addConstructor<void (*)(), RefCountedPtr<Player> >()
-      .addProperty("x", &Player::get_x, &Player::set_x)
-      .endClass();
+        .addConstructor<void (*)(), RefCountedPtr<Player> /* creation policy */ >()
+        .addProperty("x", &Player::get_x, &Player::set_x)
+      .endClass()
+  ;
 }
 
 const char *test = "player = Player() \n"
