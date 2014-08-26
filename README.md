@@ -5,6 +5,8 @@ lua cpp tryout
 
 a project for trying out lua bindings with travis-ci
 
+Stackoverflow question: [25498277](http://stackoverflow.com/questions/25498277/binding-c-functions-calling-lua-functions-with-class-as-parameter)
+
 Using:
 
  - [LuaState](https://github.com/AdUki/LuaState) - a working wrapper for the lua state and more
