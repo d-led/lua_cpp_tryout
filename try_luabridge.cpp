@@ -3,37 +3,33 @@
 #include <RefCountedPtr.h>
 #include <LuaState.h>
 #include <iostream>
+#include <memory>
 
 
-class Player {
- int x;
-
+class MyObject {
 public:
- Player() : x(0) { std::cout << __FUNCTION__ << std::endl; }
+ void RegisterEvent(const std::string & eventID) {
+  std::cout << __FUNCTION__ << " " << eventID << std::endl;
+ }
 
- ~Player() { std::cout << __FUNCTION__ << std::endl; }
-
- int get_x() const {
+ ~MyObject() {
   std::cout << __FUNCTION__ << std::endl;
-  return x;
  }
-
- void set_x(int x_) {
-  std::cout << __FUNCTION__ << " " << x_ << std::endl;
-  x = x_;
- }
-
- void jump() { std::cout << __FUNCTION__ << std::endl; }
 };
 
 void luabridge_bind(lua_State *L) {
  luabridge::getGlobalNamespace(L)
- .beginClass<Player>("Player")
- .addConstructor<void (*)(), RefCountedPtr<Player> /* creation policy */ >()
- .addProperty("x", &Player::get_x, &Player::set_x)
- .addFunction("jump", &Player::jump)
+  .beginClass<MyObject>("MyObject")
+  .addConstructor<void(*)(), RefCountedPtr<MyObject> /* creation policy */ >()
+  .addFunction("RegisterEvent", &MyObject::RegisterEvent)
  .endClass()
- ; 
+ ;
+}
+
+template <typename T>
+void SetGlobal(lua_State* L, const char *name, T value) {
+ luabridge::push(L, value);
+ lua_setglobal(L, name);
 }
 
 int main() {
@@ -42,12 +38,19 @@ int main() {
  luabridge_bind(state.getState());
 
  try {
-  static const char *test =
-  "player = Player() \n"
-  "player:jump() \n"
-  "player.x = player.x + 3"
+  static const char *script =
+   "function Object_OnLoad(object)\n"
+   " object:RegisterEvent('EVENT_CURRENT_HEALTH_CHANGED')\n"
+   "end"
   ;
-  state.doString(test);
+  state.doString(script);
+
+  // shared and automatic lifetime
+  auto my_obj = RefCountedPtr<MyObject>(new MyObject);
+
+  // temporary global
+  SetGlobal(state.getState(), "my_obj", my_obj);
+  state.doString("Object_OnLoad(my_obj); my_obj = nil");
  }
  catch (std::exception &e) {
   std::cerr << e.what() << std::endl;
