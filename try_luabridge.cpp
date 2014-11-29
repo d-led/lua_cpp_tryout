@@ -3,35 +3,41 @@
 #include <RefCountedPtr.h>
 #include <LuaState.h>
 #include <iostream>
+#include <map>
+#include <string>
 
 
-class Player {
- int x;
+class Entity {
+    std::map<std::string, int> attributes;
 
 public:
- Player() : x(0) { std::cout << __FUNCTION__ << std::endl; }
+    void attribute(std::string const& key,int value) {
+        attributes[key] = value;
+    }
 
- ~Player() { std::cout << __FUNCTION__ << std::endl; }
+    int& attribute(std::string const& key) {
+        return attributes[key];
+    }
+};
 
- int get_x() const {
-  std::cout << __FUNCTION__ << std::endl;
-  return x;
- }
+class EntityWrapper {
+    Entity entity;
+public:
+    void set_int(std::string const& key,int value) {
+        entity.attribute(key,value);
+    }
 
- void set_x(int x_) {
-  std::cout << __FUNCTION__ << " " << x_ << std::endl;
-  x = x_;
- }
-
- void jump() { std::cout << __FUNCTION__ << std::endl; }
+    int get_int(std::string const& key) {
+        return entity.attribute(key);
+    }
 };
 
 void luabridge_bind(lua_State *L) {
  luabridge::getGlobalNamespace(L)
- .beginClass<Player>("Player")
- .addConstructor<void (*)(), RefCountedPtr<Player> /* creation policy */ >()
- .addProperty("x", &Player::get_x, &Player::set_x)
- .addFunction("jump", &Player::jump)
+ .beginClass<EntityWrapper>("Entity")
+ .addConstructor<void(*)(), RefCountedPtr<EntityWrapper> /* creation policy */ >()
+    .addFunction("get_int", &EntityWrapper::get_int)
+    .addFunction("set_int", &EntityWrapper::set_int)
  .endClass()
  ; 
 }
@@ -42,11 +48,11 @@ int main() {
  luabridge_bind(state.getState());
 
  try {
-  static const char *test =
-  "player = Player() \n"
-  "player:jump() \n"
-  "player.x = player.x + 3"
-  ;
+     static const char *test = R"(
+local e = Entity()
+e:set_int("bla",42)
+print(e:get_int("bla"))
+)";
   state.doString(test);
  }
  catch (std::exception &e) {
