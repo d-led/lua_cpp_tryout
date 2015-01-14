@@ -7,7 +7,7 @@
 int call__(lua_State* L) {
     int count = lua_gettop(L);
     lua_pushstring(L, "n");
-    lua_gettable(L, 1);
+    lua_gettable(L, 1); //push value from the table onto the stack
     std::cout 
         << (int)lua_tonumber(L, -1) 
         << ", " << (int)lua_tonumber(L, 2)
@@ -33,6 +33,7 @@ int main() {
         lua_getglobal(L, "t");
         int t = lua_gettop(L);
 
+        // prepare metatable
         luaL_newmetatable(L, "mt");
         lua_pushstring(L, "__call");
         lua_pushcfunction(L, call__);
@@ -41,7 +42,7 @@ int main() {
         lua_settop(L, 0);
 
         static const char *test = R"(
-t(43,44)
+t(43,44) -- same as http://ideone.com/V7Sqdg
 )";
         state.doString(test);
     }
