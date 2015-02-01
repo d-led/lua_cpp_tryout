@@ -4,5 +4,4 @@ before_install:
   - sudo apt-get install lua5.1 liblua5.1-dev
 
 script:
-  - make -C Build config=release
-
+  - make -C Build/linux/gmake config=release64
