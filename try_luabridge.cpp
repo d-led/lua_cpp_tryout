@@ -1,50 +1,41 @@
 #include <lua.hpp>
 #include <LuaState.h>
 #include <iostream>
-#include <map>
+#include <LuaBridge.h>
+#include <luabind/luabind.hpp>
 #include <string>
 
-int call__(lua_State* L) {
-    int count = lua_gettop(L);
-    lua_pushstring(L, "n");
-    lua_gettable(L, 1); //push value from the table onto the stack
-    std::cout 
-        << (int)lua_tonumber(L, -1) 
-        << ", " << (int)lua_tonumber(L, 2)
-        << ", " << (int)lua_tonumber(L, 3)
-        << std::endl;
-    return 0;
+void bridge() {
+    std::cout << "hello from LuaBridge" << std::endl;
 }
 
-static void set(lua_State *L, int table_index, const char *key) {
-    lua_pushstring(L, key);
-    lua_insert(L, -2);
-    lua_settable(L, table_index);
+void bind() {
+    std::cout << "hello from LuaBind" << std::endl;
+}
+
+void bind_luabridge(lua_State* L) {
+    luabridge::getGlobalNamespace(L)
+        .addFunction("bridge", bridge)
+    ;
+}
+
+void bind_luabind(lua_State* L) {
+    using namespace luabind;
+
+    open(L);
+
+    module(L) [
+        def("bind",bind)
+    ];
 }
 
 int main() {
     lua::State state;
 
     try {
-        state.doString("t={n=42}");
-
-        lua_State* L(state.getState());
-
-        lua_getglobal(L, "t");
-        int t = lua_gettop(L);
-
-        // prepare metatable
-        luaL_newmetatable(L, "mt");
-        lua_pushstring(L, "__call");
-        lua_pushcfunction(L, call__);
-        lua_settable(L, -3);
-        lua_setmetatable(L, t);
-        lua_settop(L, 0);
-
-        static const char *test = R"(
-t(43,44) -- same as http://ideone.com/V7Sqdg
-)";
-        state.doString(test);
+        bind_luabridge(state.getState());
+        bind_luabind(state.getState());
+        state.doString("bridge() bind()");
     }
     catch (std::exception &e) {
         std::cerr << e.what() << std::endl;

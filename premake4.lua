@@ -1,40 +1,42 @@
-_G.package.path=_G.package.path..[[;./?.lua;./?/?.lua]]
+include 'premake'
 
-assert( require 'premake.quickstart' )
+lua = assert(dofile 'premake/recipes/lua.lua')
+boost = assert(dofile 'premake/recipes/boost.lua')
 
 make_solution 'lua_cpp_tryout'
 
+platforms 'native'
+
 includedirs { 
 	'./LuaBridge-1.0.2',
-	'./LuaState/include'
+	'./LuaState/include',
+	'./luabind'
 }
 
-local OS = os.get()
-local settings = {
-	includedirs = {
-		linux = {'/usr/include/lua5.1'},
-		windows = { [[C:\\luarocks\\2.1\\include]] },
-		macosx = {}
-	},
-	libdirs = {
-		linux = {},
-		windows = { [[C:\\luarocks\\2.1]] },
-		macosx = {}	
-	},
-	links = {
-		linux = { 'lua5.1' },
-		windows = { 'lua5.1' },
-		macosx = { 'lua' }
-	}
-}
+local function platform_specifics()
+	use_standard 'c++0x'
+	configuration 'linux'
+		buildoptions '-fPIC'
+	configuration '*'
+end
 
-includedirs { settings.includedirs[OS] }
-libdirs { settings.libdirs[OS] }
+lua:set_includedirs()
+lua:set_libdirs()
+boost:set_includedirs()
+boost:set_libdirs()
+boost:set_defines()
+defines { 'BOOST_NO_VARIADIC_TEMPLATES' }
+
+make_static_lib('luabind',{'./luabind/src/*.cpp'})
+platform_specifics()
 
 make_console_app('try_luabridge', { 'try_luabridge.cpp' })
 
-links { settings.links[OS] }
+lua:set_links()
+boost:set_links()
 
-make_cpp11()
+links 'luabind'
+
+platform_specifics()
 
 run_target_after_build()

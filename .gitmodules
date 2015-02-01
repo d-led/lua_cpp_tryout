@@ -4,3 +4,6 @@
 [submodule "LuaState"]
 	path = LuaState
 	url = https://github.com/AdUki/LuaState.git
+[submodule "luabind"]
+	path = luabind
+	url = https://github.com/DennisOSRM/luabind.git
