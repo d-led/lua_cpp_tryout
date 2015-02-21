@@ -3,24 +3,17 @@
 #include <iostream>
 #include <LuaBridge.h>
 #include <luabind/luabind.hpp>
+#include <luabind/iterator_policy.hpp>
 #include <string>
+#include <vector>
 
-struct a {
-    int v;
-
-    a() :v(0){}
-    a(int _) :v(_){}
-};
+typedef std::vector<int> a;
 
 struct b : a {
-    b(a const&){}
-    b(b const&){}
-    b(int _) :a(_){}
-    void bla(a const&) {
-        std::cout << "bla" << std::endl;
-    }
-    void bla(b const&) {
-        std::cout << "bla" << std::endl;
+    b(int _) :a(_,_) {}
+    b(a const&_) :a(_) {}
+    a const& each() const {
+        return *this;
     }
 };
 
@@ -32,14 +25,12 @@ void bind_luabind(lua_State* L) {
 
     module(L) [
         class_<a>("A")
-            .def(constructor<int>())
-            .def_readwrite("v",&a::v)
         ,
+
         class_<b>("B")
-            //.def(constructor<a const&>())
+            .def(constructor<a const&>())
             .def(constructor<int>())
-            .def("bla", (void (b::*)(a const&))&b::bla)
-            .def("bla", (void (b::*)(b const&))&b::bla)
+            .def("each", &b::each, return_stl_iterator)
     ];
 }
 
@@ -50,10 +41,10 @@ int main() {
         bind_luabind(state.getState());
         state.doString(R"(
 
-local a = A(42)
 local b = B(42)
-b:bla(a)
-b:bla(b)
+for v in b:each() do
+    print(v)
+end
 
 )");
     }
