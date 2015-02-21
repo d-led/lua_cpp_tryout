@@ -5,19 +5,25 @@
 #include <luabind/luabind.hpp>
 #include <string>
 
-void bridge() {
-    std::cout << "hello from LuaBridge" << std::endl;
-}
+struct a {
+    int v;
 
-void bind() {
-    std::cout << "hello from LuaBind" << std::endl;
-}
+    a() :v(0){}
+    a(int _) :v(_){}
+};
 
-void bind_luabridge(lua_State* L) {
-    luabridge::getGlobalNamespace(L)
-        .addFunction("bridge", bridge)
-    ;
-}
+struct b : a {
+    b(a const&){}
+    b(b const&){}
+    b(int _) :a(_){}
+    void bla(a const&) {
+        std::cout << "bla" << std::endl;
+    }
+    void bla(b const&) {
+        std::cout << "bla" << std::endl;
+    }
+};
+
 
 void bind_luabind(lua_State* L) {
     using namespace luabind;
@@ -25,7 +31,15 @@ void bind_luabind(lua_State* L) {
     open(L);
 
     module(L) [
-        def("bind",bind)
+        class_<a>("A")
+            .def(constructor<int>())
+            .def_readwrite("v",&a::v)
+        ,
+        class_<b>("B")
+            //.def(constructor<a const&>())
+            .def(constructor<int>())
+            .def("bla", (void (b::*)(a const&))&b::bla)
+            .def("bla", (void (b::*)(b const&))&b::bla)
     ];
 }
 
@@ -33,9 +47,15 @@ int main() {
     lua::State state;
 
     try {
-        bind_luabridge(state.getState());
         bind_luabind(state.getState());
-        state.doString("bridge() bind()");
+        state.doString(R"(
+
+local a = A(42)
+local b = B(42)
+b:bla(a)
+b:bla(b)
+
+)");
     }
     catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
