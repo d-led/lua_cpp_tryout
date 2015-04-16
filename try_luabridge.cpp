@@ -31,7 +31,7 @@ int main() {
     try {
         bind_luabind(state.getState());
         Player p;
-        luabind::globals(L)["player"] = p;
+        luabind::globals(state.getState())["player"] = p;
         state.doString("player:Update()");
     }
     catch (std::exception &e) {
