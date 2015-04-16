@@ -5,27 +5,23 @@
 #include <luabind/luabind.hpp>
 #include <string>
 
-void bridge() {
-    std::cout << "hello from LuaBridge" << std::endl;
-}
-
-void bind() {
-    std::cout << "hello from LuaBind" << std::endl;
-}
-
-void bind_luabridge(lua_State* L) {
-    luabridge::getGlobalNamespace(L)
-        .addFunction("bridge", bridge)
-    ;
-}
+class Player {
+public:
+    void Update() {
+        std::cout<<__FUNCTION__<<std::endl;
+    }
+};
 
 void bind_luabind(lua_State* L) {
     using namespace luabind;
 
     open(L);
 
-    module(L) [
-        def("bind",bind)
+    module(L)
+    [
+      class_<Player>("Player")
+      .def(constructor<>())
+      .def("Update",&Player::Update)
     ];
 }
 
@@ -33,9 +29,10 @@ int main() {
     lua::State state;
 
     try {
-        bind_luabridge(state.getState());
         bind_luabind(state.getState());
-        state.doString("bridge() bind()");
+        Player p;
+        luabind::globals(L)["player"] = p;
+        state.doString("player:Update()");
     }
     catch (std::exception &e) {
         std::cerr << e.what() << std::endl;
