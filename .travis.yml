@@ -1,7 +1,15 @@
 language: cpp
 
-before_install:
-  - sudo apt-get install lua5.1 liblua5.1-dev
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - lua5.1
+      - liblua5.1-0-dev
+      
+cache:
+  - apt
 
 script:
   - make -C Build config=release
